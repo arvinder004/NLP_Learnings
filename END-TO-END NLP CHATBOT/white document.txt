@@ -1,0 +1,9 @@
+> configure chatbot in dialogue flow
+> chatbot's backend in python
+> interact with mysql database
+> integrate the chatbot to website
+
+
+PROBLEM STATEMENT -> BUILD A CHATBOT AND INTERGRATE TO THE WEBSITE AND ORDER OR TRACK FOOD and returns order id with the billsc
+
+scope of work -> 
