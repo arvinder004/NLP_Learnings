@@ -1,0 +1,14 @@
+# Rasa Installation & Building Basic Bot
+
+# will run with python 3.8.0
+# pip3 install
+# pip3 install rasa
+# pip3 install 'rasa[full]' (to install full dependencies)
+
+# to upgrade
+# pip3 install --upgrade rasa
+# pip3 install rasa==3.0 (To download a specific version, specify the version number)
+
+
+# rasa init
+# TRAIN INITIAL MODEL - YES
