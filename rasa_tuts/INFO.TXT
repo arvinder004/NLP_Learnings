@@ -12,3 +12,41 @@
 
 # rasa init
 # TRAIN INITIAL MODEL - YES
+
+# rasa train -> train core of rasa
+# rasa train nlu -> train nlu
+# rasa shell -> talk in the shell
+
+#rasa server at port 5005
+
+
+actions folder
+    actions.py ->
+
+data folder (training data)
+    nlu.yml -> data to understand the intent
+    rules.yml -> specify set of rules that bot follows, an intent is triggered then bot performs some action
+    stories.yml -> stories which are created based on the user interaction with the bot...whenever an intent is triggered for a story then action will be performed.. bot can decide which story can it follow based on the user's action
+
+   bot can decide the story according to user's action but will strictly follow the rules defined
+
+config.yml
+    policies
+    pipelines
+    languages
+
+credentials.yml used to integrate the chatbot with other channels
+
+endpoints.yml specify all the endpoints we are using (models/ actions/ tracker store)
+in a basic chatbot we mostly use action endpoint
+
+action .py perform custom actions
+    example - access some data from the database
+
+domain.yml
+    input and output of the bot
+    specify the intents
+    specify the responses
+    actions
+    custom actions
+
