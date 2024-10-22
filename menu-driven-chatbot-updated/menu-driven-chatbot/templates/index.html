@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Indian Museum Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #e0f7fa; /* Light cyan blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chat-container {
+            width: 450px;
+            height: 600px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #chatbox {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: #fafafa;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 15px;
+            max-width: 80%;
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #e3f2fd;
+            align-self: flex-start;
+            font-size: 16px;
+            padding: 15px 20px;
+        }
+        .option-button {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .query-button {
+    display: inline-block;
+    margin: 5px;
+    padding: 10px 15px;
+    background-color: #28a745; /* Updated background color */
+    color: #ffffff; /* Updated text color */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover{
+        background-color: #2cb29e;
+    }
+}
+
+        .option-button:hover {
+            background-color: #0056b3;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+            border-top: 1px solid #ddd;
+        }
+        #user-input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+            background-color: #f1f1f1;
+            margin-right: 10px;
+            display: none; /* Hide input initially */
+        }
+        #send-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<div id="chat-container">
+    <div id="chatbox">
+        <div class="message bot-message">Welcome to the Indian Museum! Click 'Book Ticket' to start or if you have any query then select 'Type Query'</div>
+        <button class="option-button" onclick="sendMessage('Book Ticket')">Book Ticket</button>
+        <button class="option-button" onclick="">View Events</button>
+        <button class="option-button" onclick="">Check Timings</button>
+        <button class="option-button" onclick="">FAQs</button>
+        <button class="query-button" onclick="switch_to_conversational_chatbot()">Type Query</button>
+    </div>
+    <div id="input-container">
+        <input type="text" id="user-input" placeholder="Enter number of tickets..."> <!-- Text box for ticket input -->
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    const chatContent = document.getElementById('chatbox');
+    const userInput = document.getElementById('user-input');
+    const inputContainer = document.getElementById('input-container');
+    const sendButton = document.getElementById('send-button');
+
+    function appendMessage(sender, message) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.classList.add(sender === 'You' ? 'user-message' : 'bot-message');
+        messageElement.textContent = message;
+        chatContent.appendChild(messageElement);
+        chatContent.scrollTop = chatContent.scrollHeight;  // Auto-scroll to the bottom
+    }
+
+    function appendButtons(options) {
+        options.forEach(option => {
+            const button = document.createElement('button');
+            button.classList.add('option-button');
+            button.textContent = option;
+            button.onclick = () => sendMessage(option);
+            chatContent.appendChild(button);
+        });
+        chatContent.scrollTop = chatContent.scrollHeight;
+    }
+
+    function showInputBox() {
+        userInput.style.display = 'block'; // Show the text input
+        userInput.focus();
+    }
+
+    function hideInputBox() {
+        userInput.style.display = 'none'; // Hide the text input
+        userInput.value = ''; // Clear the text input
+    }
+
+    async function sendMessage(message) {
+        if (typeof message === 'string') {
+            appendMessage('You', message);
+        } else {
+            message = userInput.value;
+            if (message.trim() === '') return;
+            appendMessage('You', message);
+            hideInputBox(); // Hide input after sending message
+        }
+
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+
+        const data = await response.json();
+        appendMessage('Bot', data.response);
+
+        // Clear previous buttons
+        const buttons = document.querySelectorAll('.option-button');
+        buttons.forEach(button => button.remove());
+
+        // Add buttons or show input based on chatbot response
+        if (data.buttons) {
+            appendButtons(data.buttons);
+        }
+
+        if (data.showInputBox) {
+            showInputBox(); // Show input box for ticket count input
+        } else {
+            hideInputBox();
+        }
+
+        if (data.response.includes('Redirecting to the payment page')) {
+            simulatePayment();
+        }
+    }
+
+    async function simulatePayment() {
+        const ticketCount = parseInt(userInput.value);
+        const amount = ticketCount * 150; // Example amount calculation
+        const paymentMethod = 'card'; // Example payment method
+
+        const response = await fetch('/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: amount, payment_method: paymentMethod })
+        });
+
+        const paymentData = await response.json();
+
+        if (paymentData.status === 'success') {
+            appendMessage('Bot', 'Payment processed successfully. Your tickets have been booked.');
+        } else {
+            appendMessage('Bot', 'Payment failed. Please try again.');
+        }
+    }
+    function switch_to_conversational_chatbot(){
+        document.getElementById("user-input").placeholder = "Type your query";
+        showInputBox()
+    }
+
+</script>
+
+
+</body>
+</html>

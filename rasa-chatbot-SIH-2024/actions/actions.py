@@ -25,3 +25,34 @@
 #         dispatcher.utter_message(text="Hello World!")
 #
 #         return []
+
+from rasa_sdk import Action
+from rasa_sdk.events import SlotSet
+
+
+class ActionBookTicket(Action):
+    def name(self):
+        return "action_book_ticket"
+
+    def run(self, dispatcher, tracker, domain):
+        dispatcher.utter_message(text="Great! Let me book your museum ticket. Can you provide the date?")
+        return []
+
+
+class ActionCheckHours(Action):
+    def name(self):
+        return "action_check_hours"
+
+    def run(self, dispatcher, tracker, domain):
+        dispatcher.utter_message(text="The museum is open from 9 AM to 5 PM every day except Mondays.")
+        return []
+
+
+class ActionGetDirections(Action):
+    def name(self):
+        return "action_get_directions"
+
+    def run(self, dispatcher, tracker, domain):
+        dispatcher.utter_message(
+            text="Here’s the Google Maps link to the museum: [Museum Directions](https://maps.google.com)")
+        return []
